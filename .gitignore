@@ -3,3 +3,4 @@
 venv/
 __pycache__/
 *.json
+mindsdb_sql_parser.egg-info

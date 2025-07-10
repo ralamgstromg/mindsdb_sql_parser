@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mindsdb_sql_parser"
+version = "0.10.2"
+license = "MIT"
+description = "Mindsdb SQL parser"
+requires-python = ">=3.9"
