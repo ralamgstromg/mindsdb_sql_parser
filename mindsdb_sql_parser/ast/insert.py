@@ -12,6 +12,7 @@ class Insert(ASTNode):
                  values=None,
                  from_select=None,
                  is_plain=False,
+                 using=None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.table = table
@@ -30,6 +31,10 @@ class Insert(ASTNode):
 
         # True if values in query are constant (without subselects and operations)
         self.is_plain = is_plain
+
+        if using is None:
+            using = {}
+        self.using = using
 
     def to_column(self, col):
         if isinstance(col, str):
@@ -69,10 +74,15 @@ class Insert(ASTNode):
         else:
             from_select_str = ''
 
+        using_str = ''
+        if self.using:
+            using_str = f'\n{ind1}using={repr(self.using)},'
+
         out_str = f'{ind}Insert(table={self.table.to_tree()}\n' \
                   f'{ind1}columns=[{columns_str}]\n' \
                   f'{values_str}' \
                   f'{from_select_str}' \
+                  f'{using_str}\n' \
                   f'{ind})\n'
         return out_str
 

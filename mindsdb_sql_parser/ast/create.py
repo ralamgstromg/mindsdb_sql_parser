@@ -38,6 +38,7 @@ class CreateTable(ASTNode):
                  columns: List[TableColumn] = None,
                  is_replace=False,
                  if_not_exists=False,
+                 using=None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
@@ -45,6 +46,7 @@ class CreateTable(ASTNode):
         self.from_select = from_select
         self.columns = columns
         self.if_not_exists = if_not_exists
+        self.using = using
 
     def to_tree(self, *args, level=0, **kwargs):
         ind = indent(level)
@@ -68,12 +70,18 @@ class CreateTable(ASTNode):
 
             columns_str = f'{ind1}columns=\n' + '\n'.join(columns)
 
+        using_str = ''
+        if self.using:
+            using_str = f'\n{ind1}using={repr(self.using)},'
+            #print(using_str)
+
         out_str = f'{ind}CreateTable(\n' \
                   f'{ind1}if_not_exists={self.if_not_exists},\n' \
                   f'{ind1}name={self.name}\n' \
                   f'{replace_str}' \
                   f'{from_select_str}' \
                   f'{columns_str}\n' \
+                  f'{using_str}\n' \
                   f'{ind})\n'
         return out_str
 
@@ -114,6 +122,13 @@ class CreateTable(ASTNode):
         from_select_str = ''
         if self.from_select is not None:
             from_select_str = self.from_select.to_string()
+                
+        using_str = ''
+        if self.using:
+            using_str = "USING " + ", ".join([f"{k}={v}" for k, v in self.using.items()])
+            # print(using_str)
 
         name_str = str(self.name)
-        return f'CREATE{replace_str} TABLE {"IF NOT EXISTS " if self.if_not_exists else ""}{name_str} {columns_str} {from_select_str}'
+
+        #print(f'CREATE{replace_str} TABLE {"IF NOT EXISTS " if self.if_not_exists else ""}{name_str} {columns_str} {from_select_str} {using_str}')
+        return f'CREATE{replace_str} TABLE {"IF NOT EXISTS " if self.if_not_exists else ""}{name_str} {columns_str} {from_select_str} {using_str}'

@@ -651,17 +651,25 @@ class MindsDBParser(Parser):
     @_('INSERT INTO identifier LPAREN column_list RPAREN select',
        'INSERT INTO identifier LPAREN column_list RPAREN union',
        'INSERT INTO identifier select',
-       'INSERT INTO identifier union')
+       'INSERT INTO identifier union'
+       )
     def insert(self, p):
         columns = getattr(p, 'column_list', None)
         query = p.select if hasattr(p, 'select') else p.union
-        return Insert(table=p.identifier, columns=columns, from_select=query)
+        
+        params = getattr(p, 'kw_parameter_list', {})
+        params = {k.lower(): v for k, v in params.items()}  # case insensitive
+
+        return Insert(table=p.identifier, columns=columns, from_select=query, using=params)
 
     @_('INSERT INTO identifier LPAREN column_list RPAREN VALUES expr_list_set',
-       'INSERT INTO identifier VALUES expr_list_set')
+       'INSERT INTO identifier VALUES expr_list_set'
+       )
     def insert(self, p):
         columns = getattr(p, 'column_list', None)
-        return Insert(table=p.identifier, columns=columns, values=p.expr_list_set)
+        params = getattr(p, 'kw_parameter_list', {})
+        params = {k.lower(): v for k, v in params.items()}  # case insensitive
+        return Insert(table=p.identifier, columns=columns, values=p.expr_list_set, using=params)
 
     @_('expr_list_set COMMA expr_list_set')
     def expr_list_set(self, p):
@@ -809,7 +817,9 @@ class MindsDBParser(Parser):
         items.append(p.table_column)
         return items
 
-    @_('CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN table_column_list RPAREN')
+    @_('CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN table_column_list RPAREN USING kw_parameter_list',
+        'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN table_column_list RPAREN'
+       )
     def create_table(self, p):
         table_columns = {}
         primary_keys = []
@@ -822,25 +832,38 @@ class MindsDBParser(Parser):
             if col_name in table_columns:
                 table_columns[col_name].is_primary_key = True
 
+        params = getattr(p, 'kw_parameter_list', {})
+        params = {k.lower(): v for k, v in params.items()}
+        #print("CREATE_TABLE1", params)
+
         return CreateTable(
             name=p.identifier,
             columns=list(table_columns.values()),
             is_replace=getattr(p, 'replace_or_empty', False),
-            if_not_exists=getattr(p, 'if_not_exists_or_empty', False)
+            if_not_exists=getattr(p, 'if_not_exists_or_empty', False),
+            using=params
         )
 
     @_(
-       'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier select',
-       'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN select RPAREN',
+       'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier select USING kw_parameter_list',
+       'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier select',       
+       #'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN select RPAREN USING kw_parameter_list',
+       'CREATE replace_or_empty TABLE if_not_exists_or_empty identifier LPAREN select RPAREN'    
     )
     def create_table(self, p):
         is_replace = getattr(p, 'replace_or_empty', False)
+
+        params = getattr(p, 'kw_parameter_list', {})
+        params = {k.lower(): v for k, v in params.items()}  # case insensitive
+
+        #print("CREATE_TABLE2", params)
 
         return CreateTable(
             name=p.identifier,
             is_replace=is_replace,
             from_select=p.select,
-            if_not_exists=getattr(p, 'if_not_exists_or_empty', False)
+            if_not_exists=getattr(p, 'if_not_exists_or_empty', False),
+            using=params
         )
 
     # create predictor
