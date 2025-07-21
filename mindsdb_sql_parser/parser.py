@@ -27,6 +27,10 @@ from mindsdb_sql_parser.ast.mindsdb.finetune_predictor import FinetunePredictor
 from mindsdb_sql_parser.utils import ensure_select_keyword_order, JoinType, tokens_to_string
 from mindsdb_sql_parser.logger import ParserLogger
 
+from mindsdb_sql_parser.ast.call import Call
+
+#from mindsdb_sql_parser.mindsdb_sql_parser.ast.call import Call
+
 from mindsdb_sql_parser.lexer import MindsDBLexer
 
 all_tokens_list = MindsDBLexer.tokens.copy()
@@ -103,6 +107,8 @@ class MindsDBParser(Parser):
        'update_agent',
        'create_index',
        'drop_index',
+       'call',
+       'kill',
        )
     def query(self, p):
         return p[0]
@@ -2003,7 +2009,9 @@ class MindsDBParser(Parser):
        'PROJECT',
        'TRIGGER',
        'CHATBOT',
-       'SEARCH_PATH'
+       'SEARCH_PATH',
+       'CALL',
+       'KILL',
        )
     def id(self, p):
         return p[0]
@@ -2106,3 +2114,41 @@ class MindsDBParser(Parser):
         )
         # don't raise exception
         return
+    
+
+    @_(
+            'CALL identifier LPAREN raw_query RPAREN',
+            'CALL identifier LPAREN RPAREN',
+       )
+    def call(self, p):        
+        #print("[CALL]", str(p.identifier), str(p.raw_query))
+        #print(p.raw_query)
+        name = None
+        if hasattr(p, 'identifier'):
+            name = p.identifier
+
+        params = ""
+        if hasattr(p, 'raw_query'):
+            params = tokens_to_string(p.raw_query)
+        # else:
+        #     name = p.identifier0
+
+        #print("[CALL]", name, params)
+        return Call(
+            name=name,
+            query_str=params,
+            #query_str=tokens_to_string(p.raw_query),
+        )
+
+    @_(
+            'KILL QUERY raw_query',
+            'KILL raw_query',
+       )
+    def kill(self, p):        
+        params = None
+        if hasattr(p, 'raw_query'):
+            params = p.raw_query
+
+        return Kill(
+            process_id=tokens_to_string(params)
+        )

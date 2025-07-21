@@ -35,6 +35,12 @@ class MindsDBLexer(Lexer):
         SKILL,
         AGENT,
 
+        # Procedures and functions
+        CALL,
+
+        # Kill
+        KILL, QUERY,
+
         # SHOW/DDL Keywords
 
         SHOW, SCHEMAS, SCHEMA, DATABASES, DATABASE, TABLES, TABLE, FULL, EXTENDED, PROCESSLIST,
@@ -130,6 +136,13 @@ class MindsDBLexer(Lexer):
     KNOWLEDGE_BASES = r'\bKNOWLEDGE[_|\s]BASES\b'
     SKILL = r'\bSKILL\b'
     AGENT = r'\bAGENT\b'
+
+    # Procedures and functions
+    CALL = r'\bCALL\b'
+
+    # Kill
+    KILL = r'\bKILL\b'
+    QUERY = r'\bQUERY\b'
 
     # Misc
     SET = r'\bSET\b'

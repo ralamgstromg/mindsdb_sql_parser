@@ -177,6 +177,8 @@ def parse_sql(sql, dialect=None):
     tokens = lexer.tokenize(sql)
     ast = parser.parse(tokens)
 
+    #print("[MINDSDB_SQL_PARSER/__INIT__]", ast, type(ast))
+
     if ast is None:
 
         eh = ErrorHandling(lexer, parser)

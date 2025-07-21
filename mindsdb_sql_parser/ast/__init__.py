@@ -15,5 +15,7 @@ from .delete import *
 from .drop import *
 from .create import *
 from .variable import *
+from .call import *
+from .kill import *
 
 from .mindsdb.latest import Latest
