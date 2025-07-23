@@ -41,6 +41,9 @@ class MindsDBLexer(Lexer):
         # Kill
         KILL, QUERY,
 
+        #JOB TIME
+        STARTING_TIME, ENDING_TIME,
+
         # SHOW/DDL Keywords
 
         SHOW, SCHEMAS, SCHEMA, DATABASES, DATABASE, TABLES, TABLE, FULL, EXTENDED, PROCESSLIST,
@@ -127,6 +130,10 @@ class MindsDBLexer(Lexer):
     EVERY = r'\bEVERY\b'
     PROJECT = r'\bPROJECT\b'
     EVALUATE = r'\bEVALUATE\b'
+
+    # JOB TIME
+    STARTING_TIME = r'\bSTARTING_TIME\b'
+    ENDING_TIME = r'\bENDING_TIME\b'
 
     # Typed models
     ANOMALY = r'\bANOMALY\b'
