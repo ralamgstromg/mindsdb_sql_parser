@@ -289,6 +289,14 @@ class MindsDBParser(Parser):
         if 'EVERY' in job_schedule:
             repeat_str = job_schedule.pop('EVERY')
 
+        starting_time_str = None
+        if 'STARTING_TIME' in job_schedule:
+            starting_time_str = job_schedule.pop('STARTING_TIME')
+
+        ending_time_str = None
+        if 'ENDING_TIME' in job_schedule:
+            ending_time_str = job_schedule.pop('ENDING_TIME')
+
         if len(job_schedule) > 0:
             raise ParsingException(f'Unexpected params: {list(job_schedule.keys())}')
 
@@ -299,6 +307,8 @@ class MindsDBParser(Parser):
             start_str=start_str,
             end_str=end_str,
             repeat_str=repeat_str,
+            starting_time_str=starting_time_str,
+            ending_time_str=ending_time_str,
             if_not_exists=p.if_not_exists_or_empty
         )
 
@@ -308,6 +318,8 @@ class MindsDBParser(Parser):
        'EVERY string',
        'EVERY id',
        'EVERY integer id',
+       'STARTING_TIME string',
+       'ENDING_TIME string',
        'job_schedule job_schedule')
     def job_schedule(self, p):
 
